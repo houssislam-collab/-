@@ -280,6 +280,39 @@ function getScore(row) {
   return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
 }
 
+// ─── RTL cell style ────────────────────────────────────────────────────────
+// readingOrder 2 = RTL, horizontal right, wrap text
+const RTL_STYLE = {
+  alignment: { readingOrder: 2, horizontal: 'right', vertical: 'center', wrapText: true },
+  font: { name: 'Arial', sz: 11 }
+};
+
+function applyRTLToSheet(ws, dataRows) {
+  // Force sheet view to RTL
+  ws['!sheetView'] = { rightToLeft: true };
+
+  // Apply RTL style to every obs cell (column H = index 7, xlsx col index 8)
+  dataRows.forEach(rowIdx => {
+    const cellAddr = XLSX.utils.encode_cell({ r: rowIdx, c: 7 });
+    if (ws[cellAddr] && ws[cellAddr].v) {
+      ws[cellAddr].s = RTL_STYLE;
+    }
+  });
+
+  // Fix column widths
+  ws['!cols'] = [
+    {wch:18},{wch:22},{wch:18},{wch:14},
+    {wch:12},{wch:10},{wch:12},{wch:44}
+  ];
+
+  // Set row heights for data rows
+  if (!ws['!rows']) ws['!rows'] = [];
+  dataRows.forEach(rowIdx => {
+    ws['!rows'][rowIdx] = { hpt: 20, hpx: 20 };
+  });
+}
+// ───────────────────────────────────────────────────────────────────────────
+
 function run() {
   sheetsData = [];
   outWB = XLSX.utils.book_new();
@@ -289,7 +322,6 @@ function run() {
     const ws = wb.Sheets[sname];
     const json = XLSX.utils.sheet_to_json(ws, { header:1, defval:null });
 
-    // Detect official raqmana sheet: row 7 (index 7) = Arabic headers
     const isData = json.length > 9 && json[7] &&
       (String(json[7][0]||'').includes('رقم') || String(json[7][1]||'').includes('اللقب'));
 
@@ -298,7 +330,6 @@ function run() {
       return;
     }
 
-    // Extract subject & group from row 4 (index 4)
     const desc = String(json[4]?.[0] || '');
     const matM = desc.match(/مادة\s*:\s*(.+)/);
     const grpM = desc.match(/الفوج التربوي\s*:\s*(.+?)\s+مادة/);
@@ -306,6 +337,8 @@ function run() {
     const group = grpM ? grpM[1].trim() : '';
 
     const rows = [];
+    const filledRows = [];   // track which xlsx row indices got obs
+
     for (let i = 8; i < json.length; i++) {
       const row = json[i];
       if (!row || row.every(c => c === null)) continue;
@@ -313,6 +346,7 @@ function run() {
       const note = getNote(score);
       if (note) {
         json[i][7] = note.t;
+        filledRows.push(i);   // i = 0-based row index in xlsx
         const s = parseFloat(score);
         total++; sum += s;
         if (s >= 10) pass++; else fail++;
@@ -321,7 +355,10 @@ function run() {
     }
 
     const newWS = XLSX.utils.aoa_to_sheet(json);
-    newWS['!cols'] = [{wch:18},{wch:22},{wch:18},{wch:14},{wch:12},{wch:10},{wch:12},{wch:42}];
+
+    // ← FIX: apply RTL + wrap to the new sheet
+    applyRTLToSheet(newWS, filledRows);
+
     XLSX.utils.book_append_sheet(outWB, newWS, sname);
     if (rows.length) sheetsData.push({ name: sname, rows, subject, group });
   });
@@ -367,7 +404,8 @@ function showTab(idx) {
 
 function dl() {
   if (!outWB) return;
-  XLSX.writeFile(outWB, 'رقمنة_مكتملة_بالملاحظات.xlsx');
+  // cellStyles:true needed so the s (style) property is written to the file
+  XLSX.writeFile(outWB, 'رقمنة_مكتملة_بالملاحظات.xlsx', { cellStyles: true });
   showToast('📥 تم تحميل الملف!');
 }
 
