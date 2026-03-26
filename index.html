@@ -6,141 +6,101 @@
 <title>ملاحظات الرقمنة الجزائرية</title>
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 :root {
-  --primary: #0b3d6b;
-  --accent:  #1565c0;
-  --green:   #1b5e20;
-  --green2:  #2e7d32;
-  --bg:      #eef2f7;
-  --card:    #fff;
-  --border:  #cfd8e3;
-  --text:    #1a2332;
-  --muted:   #607080;
-  --red:     #b71c1c;
+  --primary:#0b3d6b;--accent:#1565c0;--green:#1b5e20;--green2:#2e7d32;
+  --bg:#eef2f7;--card:#fff;--border:#cfd8e3;--text:#1a2332;--muted:#607080;--red:#b71c1c;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Tajawal', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 60px; }
-
-/* ── Header ── */
-.hdr { background: linear-gradient(135deg, #0b3d6b 0%, #1565c0 60%, #0277bd 100%); padding: 26px 20px 20px; text-align: center; }
-.hdr-flag { font-size: 28px; margin-bottom: 6px; }
-.hdr h1 { color: #fff; font-size: 19px; font-weight: 900; }
-.hdr p  { color: rgba(255,255,255,.75); font-size: 12px; margin-top: 4px; }
-
-/* ── Steps ── */
-.steps { display: flex; align-items: center; justify-content: center; gap: 0; padding: 18px 16px 0; margin-bottom: 16px; }
-.sc { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; border: 2px solid var(--border); background: #fff; color: var(--muted); transition: all .3s; flex-shrink: 0; }
-.sc.act  { border-color: var(--accent); background: var(--accent); color: #fff; }
-.sc.done { border-color: var(--green2); background: var(--green2); color: #fff; font-size: 14px; }
-.sl { font-size: 9px; color: var(--muted); font-weight: 700; margin-top: 3px; white-space: nowrap; }
-.sl.act { color: var(--accent); }
-.si { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-.sline { width: 32px; height: 2px; background: var(--border); margin-bottom: 14px; transition: background .3s; }
-.sline.done { background: var(--green2); }
-
-/* ── Layout ── */
-.wrap { max-width: 680px; margin: 0 auto; padding: 0 14px 16px; }
-.card { background: var(--card); border-radius: 16px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 14px rgba(0,0,0,.07); border: 1.5px solid var(--border); }
-.ct { font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-.ci { width: 32px; height: 32px; border-radius: 9px; background: #e3edf9; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-
-/* ── Upload zone ── */
-.upzone { border: 2.5px dashed var(--border); border-radius: 14px; padding: 30px 16px; text-align: center; cursor: pointer; transition: all .2s; background: #f8fafc; position: relative; }
-.upzone:hover, .upzone.drag { border-color: var(--accent); background: #e8f0fe; }
-.upzone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-.upzone .uico { font-size: 44px; margin-bottom: 10px; }
-.upzone h3 { font-size: 15px; font-weight: 800; color: var(--primary); }
-.upzone p  { font-size: 12px; color: var(--muted); margin-top: 4px; }
-.fname { margin-top: 12px; padding: 9px 14px; background: #e3edf9; border-radius: 9px; font-size: 13px; font-weight: 700; color: var(--accent); display: none; }
-
-/* ── Alerts ── */
-.al { padding: 11px 13px; border-radius: 10px; font-size: 12.5px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 7px; line-height: 1.5; }
-.al-blue  { background: #e3edf9; color: var(--accent); border: 1px solid #90b8e0; }
-.al-green { background: #e8f5e9; color: var(--green2); border: 1px solid #a5d6a7; }
-.al-warn  { background: #fff8e1; color: #e65100;      border: 1px solid #ffcc80; }
-
-/* ── Score options ── */
-.score-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
-.score-opt { border: 2px solid var(--border); border-radius: 12px; padding: 13px 10px; cursor: pointer; text-align: center; transition: all .2s; background: #f8fafc; }
-.score-opt:hover, .score-opt.selected { border-color: var(--accent); background: #e3edf9; }
-.score-opt .sot { font-size: 22px; margin-bottom: 4px; }
-.score-opt .son { font-size: 13px; font-weight: 800; color: var(--primary); }
-.score-opt .sod { font-size: 11px; color: var(--muted); margin-top: 2px; }
-
-/* ── Note inputs ── */
-.nl { display: flex; flex-direction: column; gap: 9px; }
-.ni { border: 1.5px solid var(--border); border-radius: 11px; overflow: hidden; }
-.nh { padding: 8px 13px; display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 800; }
-.nb { padding: 9px 13px; }
-.nb input { width: 100%; padding: 8px 11px; border: 1.5px solid var(--border); border-radius: 9px; font-family: 'Tajawal', sans-serif; font-size: 13px; color: var(--text); background: #fff; outline: none; direction: rtl; transition: border-color .2s; }
-.nb input:focus { border-color: var(--accent); }
-
-/* ── Results grid ── */
-.sheets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-.sheet-box { background: #f0f5ff; border: 1.5px solid var(--border); border-radius: 11px; padding: 11px 12px; }
-.sheet-box .sbn { font-size: 12px; font-weight: 800; color: var(--primary); }
-.sheet-box .sbi { font-size: 11px; color: var(--muted); margin-top: 3px; }
-.sheet-box.done-sheet { background: #e8f5e9; border-color: #a5d6a7; }
-.sheet-box.done-sheet .sbn { color: var(--green2); }
-.sheet-box.skip-sheet { background: #fff8e1; border-color: #ffcc80; }
-.sheet-box.skip-sheet .sbn { color: #e65100; }
-
-/* ── Stats ── */
-.stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 12px; }
-.stat { background: #f0f5ff; border-radius: 11px; padding: 11px 6px; text-align: center; border: 1.5px solid var(--border); }
-.stn { font-size: 19px; font-weight: 900; color: var(--primary); }
-.stl { font-size: 10px; color: var(--muted); font-weight: 700; margin-top: 2px; }
-
-/* ── Preview table ── */
-.prev-wrap { overflow-x: auto; border-radius: 11px; border: 1.5px solid var(--border); }
-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 380px; }
-thead tr { background: var(--primary); color: #fff; }
-th { padding: 9px 10px; font-weight: 800; text-align: center; white-space: nowrap; }
-tbody tr { border-bottom: 1px solid #edf2f7; }
-tbody tr:hover { background: #f0f5ff; }
-td { padding: 7px 10px; text-align: center; vertical-align: middle; }
-td.lname { text-align: right; font-weight: 700; }
-.nb2 { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 10.5px; font-weight: 800; white-space: nowrap; }
-
-/* ── Tabs ── */
-.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
-.tab { padding: 6px 12px; border-radius: 20px; font-size: 11.5px; font-weight: 700; cursor: pointer; border: 1.5px solid var(--border); background: #f8fafc; color: var(--muted); transition: all .2s; }
-.tab:hover { border-color: var(--accent); color: var(--accent); }
-.tab.active-tab { background: var(--accent); color: #fff; border-color: var(--accent); }
-
-/* ── Buttons ── */
-.btn { padding: 13px 16px; border-radius: 12px; border: none; font-family: 'Tajawal', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; }
-.btn-blue  { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; box-shadow: 0 4px 15px rgba(21,101,192,.3); }
-.btn-blue:hover  { transform: translateY(-1px); }
-.btn-green { background: linear-gradient(135deg, var(--green), var(--green2)); color: #fff; box-shadow: 0 4px 15px rgba(46,125,50,.3); }
-.btn-green:hover { transform: translateY(-1px); }
-.btn-out { background: #fff; color: var(--primary); border: 2px solid var(--primary); }
-.btn + .btn { margin-top: 9px; }
-
-/* ── Loader ── */
-.loader { display: none; text-align: center; padding: 20px; }
-.spin { width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: sp .8s linear infinite; margin: 0 auto 10px; }
-@keyframes sp { to { transform: rotate(360deg); } }
-.loader p { font-size: 13px; color: var(--muted); font-weight: 700; }
-
-/* ── Sections ── */
-.sec { display: none; }
-.sec.act { display: block; }
-
-/* ── Toast ── */
-.toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%) translateY(80px); background: #1a2332; color: #fff; padding: 12px 22px; border-radius: 30px; font-size: 13px; font-weight: 700; transition: transform .3s; z-index: 9999; box-shadow: 0 8px 24px rgba(0,0,0,.3); white-space: nowrap; }
-.toast.show { transform: translateX(-50%) translateY(0); }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:60px}
+.hdr{background:linear-gradient(135deg,#0b3d6b 0%,#1565c0 60%,#0277bd 100%);padding:26px 20px 20px;text-align:center}
+.hdr-flag{font-size:28px;margin-bottom:6px}
+.hdr h1{color:#fff;font-size:19px;font-weight:900}
+.hdr p{color:rgba(255,255,255,.75);font-size:12px;margin-top:4px}
+.steps{display:flex;align-items:center;justify-content:center;gap:0;padding:18px 16px 0;margin-bottom:16px}
+.sc{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;border:2px solid var(--border);background:#fff;color:var(--muted);transition:all .3s;flex-shrink:0}
+.sc.act{border-color:var(--accent);background:var(--accent);color:#fff}
+.sc.done{border-color:var(--green2);background:var(--green2);color:#fff;font-size:14px}
+.sl{font-size:9px;color:var(--muted);font-weight:700;margin-top:3px;white-space:nowrap}
+.sl.act{color:var(--accent)}
+.si{display:flex;flex-direction:column;align-items:center;gap:2px}
+.sline{width:32px;height:2px;background:var(--border);margin-bottom:14px;transition:background .3s}
+.sline.done{background:var(--green2)}
+.wrap{max-width:680px;margin:0 auto;padding:0 14px 16px}
+.card{background:var(--card);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 2px 14px rgba(0,0,0,.07);border:1.5px solid var(--border)}
+.ct{font-size:14px;font-weight:800;color:var(--primary);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.ci{width:32px;height:32px;border-radius:9px;background:#e3edf9;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.upzone{border:2.5px dashed var(--border);border-radius:14px;padding:30px 16px;text-align:center;cursor:pointer;transition:all .2s;background:#f8fafc;position:relative}
+.upzone:hover,.upzone.drag{border-color:var(--accent);background:#e8f0fe}
+.upzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upzone .uico{font-size:44px;margin-bottom:10px}
+.upzone h3{font-size:15px;font-weight:800;color:var(--primary)}
+.upzone p{font-size:12px;color:var(--muted);margin-top:4px}
+.fname{margin-top:12px;padding:9px 14px;background:#e3edf9;border-radius:9px;font-size:13px;font-weight:700;color:var(--accent);display:none}
+.al{padding:11px 13px;border-radius:10px;font-size:12.5px;font-weight:600;margin-bottom:12px;display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+.al-blue{background:#e3edf9;color:var(--accent);border:1px solid #90b8e0}
+.al-green{background:#e8f5e9;color:var(--green2);border:1px solid #a5d6a7}
+.al-warn{background:#fff8e1;color:#e65100;border:1px solid #ffcc80}
+.score-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+.score-opt{border:2px solid var(--border);border-radius:12px;padding:13px 10px;cursor:pointer;text-align:center;transition:all .2s;background:#f8fafc}
+.score-opt:hover,.score-opt.selected{border-color:var(--accent);background:#e3edf9}
+.score-opt .sot{font-size:22px;margin-bottom:4px}
+.score-opt .son{font-size:13px;font-weight:800;color:var(--primary)}
+.score-opt .sod{font-size:11px;color:var(--muted);margin-top:2px}
+.nl{display:flex;flex-direction:column;gap:9px}
+.ni{border:1.5px solid var(--border);border-radius:11px;overflow:hidden}
+.nh{padding:8px 13px;display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:800}
+.nb{padding:9px 13px}
+.nb input{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:9px;font-family:'Tajawal',sans-serif;font-size:13px;color:var(--text);background:#fff;outline:none;direction:rtl;transition:border-color .2s}
+.nb input:focus{border-color:var(--accent)}
+.sheets-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.sheet-box{background:#f0f5ff;border:1.5px solid var(--border);border-radius:11px;padding:11px 12px}
+.sheet-box .sbn{font-size:12px;font-weight:800;color:var(--primary)}
+.sheet-box .sbi{font-size:11px;color:var(--muted);margin-top:3px}
+.sheet-box.done-sheet{background:#e8f5e9;border-color:#a5d6a7}
+.sheet-box.done-sheet .sbn{color:var(--green2)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.stat{background:#f0f5ff;border-radius:11px;padding:11px 6px;text-align:center;border:1.5px solid var(--border)}
+.stn{font-size:19px;font-weight:900;color:var(--primary)}
+.stl{font-size:10px;color:var(--muted);font-weight:700;margin-top:2px}
+.prev-wrap{overflow-x:auto;border-radius:11px;border:1.5px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:380px}
+thead tr{background:var(--primary);color:#fff}
+th{padding:9px 10px;font-weight:800;text-align:center;white-space:nowrap}
+tbody tr{border-bottom:1px solid #edf2f7}
+tbody tr:hover{background:#f0f5ff}
+td{padding:7px 10px;text-align:center;vertical-align:middle}
+td.lname{text-align:right;font-weight:700}
+.nb2{display:inline-block;padding:2px 9px;border-radius:20px;font-size:10.5px;font-weight:800;white-space:nowrap}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tab{padding:6px 12px;border-radius:20px;font-size:11.5px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:#f8fafc;color:var(--muted);transition:all .2s}
+.tab:hover{border-color:var(--accent);color:var(--accent)}
+.tab.active-tab{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn{padding:13px 16px;border-radius:12px;border:none;font-family:'Tajawal',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px;width:100%}
+.btn-blue{background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;box-shadow:0 4px 15px rgba(21,101,192,.3)}
+.btn-blue:hover{transform:translateY(-1px)}
+.btn-blue:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;box-shadow:0 4px 15px rgba(46,125,50,.3)}
+.btn-green:hover{transform:translateY(-1px)}
+.btn-out{background:#fff;color:var(--primary);border:2px solid var(--primary)}
+.btn+.btn{margin-top:9px}
+.loader{display:none;text-align:center;padding:20px}
+.spin{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite;margin:0 auto 10px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loader p{font-size:13px;color:var(--muted);font-weight:700}
+.sec{display:none}
+.sec.act{display:block}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a2332;color:#fff;padding:12px 22px;border-radius:30px;font-size:13px;font-weight:700;transition:transform .3s;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.3);white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
-
 <div class="hdr">
   <div class="hdr-flag">🇩🇿</div>
   <h1>ملاحظات ملف الرقمنة الرسمي</h1>
-  <p>يملأ عمود "التقديرات / obs" تلقائياً في جميع الأفواج</p>
+  <p>يملأ عمود "التقديرات / obs" تلقائياً مع الحفاظ الكامل على التنسيق الأصلي</p>
 </div>
-
 <div class="steps">
   <div class="si"><div class="sc act" id="sc1">1</div><div class="sl act" id="sl1">الملف</div></div>
   <div class="sline" id="ln1"></div>
@@ -148,17 +108,12 @@ td.lname { text-align: right; font-weight: 700; }
   <div class="sline" id="ln2"></div>
   <div class="si"><div class="sc" id="sc3">3</div><div class="sl" id="sl3">النتيجة</div></div>
 </div>
-
 <div class="wrap">
 
-<!-- ══ STEP 1 ══ -->
 <div class="sec act" id="s1">
   <div class="card">
     <div class="ct"><div class="ci">📂</div> رفع ملف الرقمنة</div>
-    <div class="al al-blue">
-      <span>💡</span>
-      <div>يدعم ملف الرقمنة الرسمي الجزائري مباشرةً. سيتم ملء عمود <strong>التقديرات (obs)</strong> في جميع الأوراق تلقائياً دفعةً واحدة مع الحفاظ على التنسيق الأصلي.</div>
-    </div>
+    <div class="al al-blue"><span>💡</span><div>يدعم ملف الرقمنة الرسمي الجزائري مباشرةً. سيتم ملء عمود <strong>التقديرات (obs)</strong> مع <strong>الحفاظ الكامل على التنسيق</strong> والخلايا المدمجة واتجاه RTL.</div></div>
     <div class="upzone" id="upz">
       <input type="file" id="fi" accept=".xlsx,.xls" onchange="loadFile(this)">
       <div class="uico">📊</div>
@@ -170,77 +125,46 @@ td.lname { text-align: right; font-weight: 700; }
   </div>
 </div>
 
-<!-- ══ STEP 2 ══ -->
 <div class="sec" id="s2">
   <div class="card">
     <div class="ct"><div class="ci">🔢</div> النقطة المعتمدة للملاحظة</div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">اختر أي نقطة تريد الاعتماد عليها لتحديد الملاحظة</p>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">اختر أي نقطة تريد الاعتماد عليها</p>
     <div class="score-opts">
-      <div class="score-opt selected" id="opt_e"   onclick="selScore('e')">
-        <div class="sot">📊</div><div class="son">معدل تقويم النشاطات</div><div class="sod">العمود E</div>
-      </div>
-      <div class="score-opt" id="opt_f"   onclick="selScore('f')">
-        <div class="sot">📝</div><div class="son">الفرض</div><div class="sod">العمود F</div>
-      </div>
-      <div class="score-opt" id="opt_g"   onclick="selScore('g')">
-        <div class="sot">📋</div><div class="son">الاختبار</div><div class="sod">العمود G</div>
-      </div>
-      <div class="score-opt" id="opt_avg" onclick="selScore('avg')">
-        <div class="sot">🧮</div><div class="son">معدل الثلاثة</div><div class="sod">E + F + G ÷ 3</div>
-      </div>
+      <div class="score-opt selected" id="opt_e" onclick="selScore('e')"><div class="sot">📊</div><div class="son">معدل تقويم النشاطات</div><div class="sod">العمود E</div></div>
+      <div class="score-opt" id="opt_f" onclick="selScore('f')"><div class="sot">📝</div><div class="son">الفرض</div><div class="sod">العمود F</div></div>
+      <div class="score-opt" id="opt_g" onclick="selScore('g')"><div class="sot">📋</div><div class="son">الاختبار</div><div class="sod">العمود G</div></div>
+      <div class="score-opt" id="opt_avg" onclick="selScore('avg')"><div class="sot">🧮</div><div class="son">معدل الثلاثة</div><div class="sod">E + F + G ÷ 3</div></div>
     </div>
   </div>
-
   <div class="card">
     <div class="ct"><div class="ci">✍️</div> نصوص الملاحظات التلقائية</div>
     <p style="font-size:12px;color:var(--muted);margin-bottom:12px">عدّل النصوص حسب رغبتك</p>
     <div class="nl">
-      <div class="ni">
-        <div class="nh" style="background:#e8f5e9;color:#1b5e20">🌟 ممتاز — من 18 إلى 20</div>
-        <div class="nb"><input type="text" id="n5" value="تلميذ(ة) متفوق(ة)، أحسنت وواصل(ي) التميز"></div>
-      </div>
-      <div class="ni">
-        <div class="nh" style="background:#e3f2fd;color:#0d47a1">👍 جيد جداً — من 15 إلى 17.99</div>
-        <div class="nb"><input type="text" id="n4" value="نتيجة جيدة جداً، استمر(ي) في المجهود"></div>
-      </div>
-      <div class="ni">
-        <div class="nh" style="background:#e0f2f1;color:#004d40">✅ جيد — من 12 إلى 14.99</div>
-        <div class="nb"><input type="text" id="n3" value="نتيجة جيدة، بإمكانك التحسين أكثر"></div>
-      </div>
-      <div class="ni">
-        <div class="nh" style="background:#fff8e1;color:#e65100">⚠️ مقبول — من 10 إلى 11.99</div>
-        <div class="nb"><input type="text" id="n2" value="نتيجة مقبولة، المزيد من العمل مطلوب"></div>
-      </div>
-      <div class="ni">
-        <div class="nh" style="background:#fce4ec;color:#b71c1c">❌ ضعيف — أقل من 10</div>
-        <div class="nb"><input type="text" id="n1" value="نتيجة غير كافية، يجب مضاعفة الجهد"></div>
-      </div>
+      <div class="ni"><div class="nh" style="background:#e8f5e9;color:#1b5e20">🌟 ممتاز — من 18 إلى 20</div><div class="nb"><input type="text" id="n5" value="نتائج ممتازة، واصل(ي) التميز"></div></div>
+      <div class="ni"><div class="nh" style="background:#e3f2fd;color:#0d47a1">👍 جيد جداً — من 15 إلى 17.99</div><div class="nb"><input type="text" id="n4" value="نتائج جيدة جداً، استمر(ي) في المجهود"></div></div>
+      <div class="ni"><div class="nh" style="background:#e0f2f1;color:#004d40">✅ جيد — من 12 إلى 14.99</div><div class="nb"><input type="text" id="n3" value="نتائج جيدة، بإمكانك التحسين أكثر"></div></div>
+      <div class="ni"><div class="nh" style="background:#fff8e1;color:#e65100">⚠️ مقبول — من 10 إلى 11.99</div><div class="nb"><input type="text" id="n2" value="نتائج متوسطة، المزيد من العمل مطلوب"></div></div>
+      <div class="ni"><div class="nh" style="background:#fce4ec;color:#b71c1c">❌ ضعيف — أقل من 10</div><div class="nb"><input type="text" id="n1" value="نتائج دون الوسط، يجب مضاعفة الجهد"></div></div>
     </div>
     <div style="margin-top:14px">
-      <button class="btn btn-blue" onclick="run()">⚡ تطبيق على جميع الأفواج</button>
-      <button class="btn btn-out"  onclick="goS(1)">← العودة</button>
+      <button class="btn btn-blue" id="runBtn" onclick="run()">⚡ تطبيق على جميع الأفواج</button>
+      <button class="btn btn-out" onclick="goS(1)">← العودة</button>
     </div>
   </div>
 </div>
 
-<!-- ══ STEP 3 ══ -->
 <div class="sec" id="s3">
   <div class="card">
     <div class="ct"><div class="ci">✅</div> تمت المعالجة بنجاح</div>
     <div class="al al-green" id="okMsg"></div>
     <div id="warnBox"></div>
-    <div class="stats"      id="stBox"></div>
+    <div class="stats" id="stBox"></div>
     <div class="sheets-grid" id="sheetsGrid"></div>
   </div>
   <div class="card">
     <div class="ct"><div class="ci">👁️</div> معاينة الأوراق</div>
     <div class="tabs" id="tabsBar"></div>
-    <div class="prev-wrap">
-      <table>
-        <thead id="pvHead"></thead>
-        <tbody id="pvBody"></tbody>
-      </table>
-    </div>
+    <div class="prev-wrap"><table><thead id="pvHead"></thead><tbody id="pvBody"></tbody></table></div>
   </div>
   <button class="btn btn-green" onclick="dl()">📥 تحميل ملف الرقمنة المكتمل</button>
   <button class="btn btn-out" style="margin-top:9px" onclick="resetAll()">🔄 ملف جديد</button>
@@ -250,17 +174,19 @@ td.lname { text-align: right; font-weight: 700; }
 <div class="toast" id="toast"></div>
 
 <script>
-let wb = null, outWB = null, scoreMode = 'e', sheetsData = [], skippedStudents = [];
+/* ── STATE ── */
+let originalBytes = null;
+let outputBlob    = null;
+let scoreMode     = 'e';
+let sheetsData    = [];
+let skippedStudents = [];
 
-// ══ Drag & drop ══
+/* ── DRAG & DROP ── */
 const uz = document.getElementById('upz');
 uz.addEventListener('dragover', e => { e.preventDefault(); uz.classList.add('drag'); });
 uz.addEventListener('dragleave', () => uz.classList.remove('drag'));
-uz.addEventListener('drop', e => {
-  e.preventDefault(); uz.classList.remove('drag');
-  if (e.dataTransfer.files[0]) doLoad(e.dataTransfer.files[0]);
-});
-function loadFile(inp) { if (inp.files[0]) doLoad(inp.files[0]); }
+uz.addEventListener('drop', e => { e.preventDefault(); uz.classList.remove('drag'); if(e.dataTransfer.files[0]) doLoad(e.dataTransfer.files[0]); });
+function loadFile(inp) { if(inp.files[0]) doLoad(inp.files[0]); }
 
 function doLoad(file) {
   document.getElementById('fn').style.display = 'block';
@@ -268,259 +194,311 @@ function doLoad(file) {
   document.getElementById('ld1').style.display = 'block';
   const r = new FileReader();
   r.onload = e => {
+    originalBytes = e.target.result;
+    document.getElementById('ld1').style.display = 'none';
     try {
-      wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array', cellStyles: true });
-      document.getElementById('ld1').style.display = 'none';
+      const wb = XLSX.read(new Uint8Array(originalBytes), { type:'array' });
       goS(2);
       showToast('✅ تم تحميل الملف — ' + wb.SheetNames.length + ' ورقة');
-    } catch(err) {
-      document.getElementById('ld1').style.display = 'none';
-      showToast('❌ خطأ في قراءة الملف');
-    }
+    } catch { showToast('❌ خطأ في قراءة الملف'); }
   };
   r.readAsArrayBuffer(file);
 }
 
-// ══ Score mode ══
+/* ── SCORE / NOTE ── */
 function selScore(m) {
   scoreMode = m;
-  ['e','f','g','avg'].forEach(k =>
-    document.getElementById('opt_'+k).classList.toggle('selected', k === m));
+  ['e','f','g','avg'].forEach(k => document.getElementById('opt_'+k).classList.toggle('selected', k===m));
 }
-
-// ══ Get note object from score ══
 function getNote(score) {
   const s = parseFloat(score);
-  if (isNaN(s) || score === null || score === '') return null;
-  if (s >= 18) return { t: document.getElementById('n5').value, bg:'#e8f5e9', cl:'#1b5e20' };
-  if (s >= 15) return { t: document.getElementById('n4').value, bg:'#e3f2fd', cl:'#0d47a1' };
-  if (s >= 12) return { t: document.getElementById('n3').value, bg:'#e0f2f1', cl:'#004d40' };
-  if (s >= 10) return { t: document.getElementById('n2').value, bg:'#fff8e1', cl:'#e65100' };
-  return       { t: document.getElementById('n1').value, bg:'#fce4ec', cl:'#b71c1c' };
+  if (isNaN(s) || score===null || score==='') return null;
+  if (s>=18) return { t:document.getElementById('n5').value, bg:'#e8f5e9', cl:'#1b5e20' };
+  if (s>=15) return { t:document.getElementById('n4').value, bg:'#e3f2fd', cl:'#0d47a1' };
+  if (s>=12) return { t:document.getElementById('n3').value, bg:'#e0f2f1', cl:'#004d40' };
+  if (s>=10) return { t:document.getElementById('n2').value, bg:'#fff8e1', cl:'#e65100' };
+  return           { t:document.getElementById('n1').value, bg:'#fce4ec', cl:'#b71c1c' };
+}
+function getScoreFromRow(row) {
+  const e=row[4], f=row[5], g=row[6];
+  if (scoreMode==='e') return e;
+  if (scoreMode==='f') return f;
+  if (scoreMode==='g') return g;
+  const vals=[e,f,g].map(v=>parseFloat(v)).filter(v=>!isNaN(v));
+  return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
 }
 
-// ══ Get score based on selected mode ══
-function getScore(row) {
-  const e = row[4], f = row[5], g = row[6];
-  if (scoreMode === 'e') return e;
-  if (scoreMode === 'f') return f;
-  if (scoreMode === 'g') return g;
-  const vals = [e, f, g].map(v => parseFloat(v)).filter(v => !isNaN(v));
-  return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
-}
-
-// ══ RTL cell style for obs column ══
-const OBS_STYLE = {
-  alignment: { readingOrder: 2, horizontal: 'right', vertical: 'center', wrapText: true },
-  font: { name: 'DejaVu Serif', sz: 10, bold: true }
-};
-
-// ══ FIX #1: Write directly into the original ws cells (preserves merges + styles) ══
-function writeObsToSheet(ws, json, filledRows) {
-
-  // Set sheet view to RTL
-  if (!ws['!sheetView']) ws['!sheetView'] = {};
-  ws['!sheetView'].rightToLeft = true;
-
-  // Restore !merges from original (rows 1–5 are merged A:H)
-  if (!ws['!merges']) {
-    ws['!merges'] = [0,1,2,3,4].map(r => ({
-      s: { r, c: 0 }, e: { r, c: 7 }
-    }));
-  }
-
-  // Write obs value + RTL style into each filled cell
-  filledRows.forEach(({ rowIdx, text }) => {
-    const addr = XLSX.utils.encode_cell({ r: rowIdx, c: 7 }); // column H = index 7
-    if (!ws[addr]) ws[addr] = {};
-    ws[addr].v = text;
-    ws[addr].t = 's';
-    ws[addr].s = OBS_STYLE;
-  });
-
-  // Fix column H width to fit Arabic obs text
-  if (!ws['!cols']) ws['!cols'] = [];
-  while (ws['!cols'].length < 8) ws['!cols'].push({});
-  ws['!cols'][7] = { wch: 44 };
-
-  // Fix row heights for data rows so wrapped text is visible
-  if (!ws['!rows']) ws['!rows'] = [];
-  filledRows.forEach(({ rowIdx }) => {
-    if (!ws['!rows'][rowIdx]) ws['!rows'][rowIdx] = {};
-    ws['!rows'][rowIdx].hpt = 22;
-    ws['!rows'][rowIdx].hpx = 22;
-  });
-
-  return ws;
-}
-
-// ══ FIX #2: Build a clean tab label (subject + group, no double spaces) ══
-function parseSheetMeta(json) {
-  const desc = String(json[4]?.[0] || '');
-  const matM = desc.match(/مادة\s*:\s*(.+)/);
-  const grpM = desc.match(/الفوج التربوي\s*:\s*(.+?)\s+مادة/);
-  const subject = matM ? matM[1].trim() : '';
-  // FIX #2: collapse multiple spaces in group name
-  const group   = grpM ? grpM[1].replace(/\s+/g, ' ').trim() : '';
-  return { subject, group };
-}
-
-// ══ MAIN RUN ══
-function run() {
-  sheetsData     = [];
-  skippedStudents = [];
-  outWB = XLSX.utils.book_new();
-  let total = 0, pass = 0, fail = 0, sum = 0;
-
+/* ── PARSE SHEETS (SheetJS for data only, used for preview + stats) ── */
+function parseSheets() {
+  const wb = XLSX.read(new Uint8Array(originalBytes), { type:'array' });
+  const result = {};
   wb.SheetNames.forEach(sname => {
     const ws   = wb.Sheets[sname];
-    const json = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
-
-    // Detect raqmana sheet: row index 7 (Row 8) = Arabic header row
-    // checks for 'رقم' in col A OR 'اللقب' in col B
-    const r7 = json[7] || [];
+    const json = XLSX.utils.sheet_to_json(ws, { header:1, defval:null });
+    const r7   = json[7] || [];
     const isData = json.length > 9 &&
-      (String(r7[0] || '').includes('رقم') || String(r7[1] || '').includes('اللقب'));
-
-    if (!isData) {
-      // copy sheet as-is (e.g. empty Worksheet tab)
-      XLSX.utils.book_append_sheet(outWB, ws, sname);
-      return;
-    }
-
-    const { subject, group } = parseSheetMeta(json);
-    const rows        = [];   // for preview
-    const filledRows  = [];   // {rowIdx, text} for writeObsToSheet
-    const sheetSkipped = [];  // students with missing score
-
-    for (let i = 8; i < json.length; i++) {
+      (String(r7[0]||'').includes('رقم') || String(r7[1]||'').includes('اللقب'));
+    if (!isData) return;
+    const desc    = String(json[4]?.[0]||'');
+    const matM    = desc.match(/مادة\s*:\s*(.+)/);
+    const grpM    = desc.match(/الفوج التربوي\s*:\s*(.+?)\s+مادة/);
+    const subject = matM ? matM[1].trim() : sname;
+    const group   = grpM ? grpM[1].replace(/\s+/g,' ').trim() : '';
+    const rows=[], fills={}, skipped=[];
+    for (let i=8; i<json.length; i++) {
       const row = json[i];
-      if (!row || row.every(c => c === null)) continue;
-
-      const score = getScore(row);
+      if (!row || row.every(c=>c===null)) continue;
+      const score = getScoreFromRow(row);
       const note  = getNote(score);
-      const name  = ((row[1] || '') + ' ' + (row[2] || '')).trim();
-
+      const name  = ((row[1]||'')+' '+(row[2]||'')).trim();
       if (note) {
-        filledRows.push({ rowIdx: i, text: note.t });
+        fills[i] = note.t;
         const s = parseFloat(score);
-        total++; sum += s;
-        if (s >= 10) pass++; else fail++;
-        rows.push({ nom: name, score: Math.round(s * 100) / 100, note });
+        rows.push({ nom:name, score:Math.round(s*100)/100, note });
       } else if (row[0]) {
-        // FIX #3: track students skipped because score is missing
-        sheetSkipped.push({ name, sheet: sname });
-        skippedStudents.push({ name, sheet: sname });
+        skipped.push({ name, sheet:sname });
+      }
+    }
+    result[sname] = { subject, group, rows, fills, skipped };
+  });
+  return result;
+}
+
+/* ── XML ESCAPE ── */
+function escXml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&apos;');
+}
+
+/* ── CORE: PATCH XLSX AS ZIP (surgical XML edit — preserves everything) ── */
+async function patchXlsxZip(sheetFillsMap) {
+  const zip = await JSZip.loadAsync(originalBytes);
+
+  /* 1. Read workbook.xml to get sheet names → rIds */
+  const wbXml  = await zip.file('xl/workbook.xml').async('string');
+  const wbRels = await zip.file('xl/_rels/workbook.xml.rels').async('string');
+
+  const sheetEntries = [...wbXml.matchAll(/<sheet\b[^>]+name="([^"]+)"[^>]+r:id="([^"]+)"/g)]
+    .map(m => ({ name:m[1], rId:m[2] }));
+
+  const relMap = {};
+  for (const m of wbRels.matchAll(/<Relationship\b[^>]+Id="([^"]+)"[^>]+Target="([^"]+)"/g))
+    relMap[m[1]] = m[2];
+
+  /* 2. Read shared strings */
+  const ssFile = zip.file('xl/sharedStrings.xml');
+  let ssXml    = ssFile ? await ssFile.async('string') : '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="0" uniqueCount="0"></sst>';
+  const origSiCount = (ssXml.match(/<si>/g) || []).length;
+  const strings = [...ssXml.matchAll(/<si>([\s\S]*?)<\/si>/g)].map(m => {
+    const tMatch = m[1].match(/<t[^>]*>([^<]*)<\/t>/);
+    return tMatch ? tMatch[1]
+      .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+      .replace(/&quot;/g,'"').replace(/&apos;/g,"'") : '';
+  });
+
+  function getOrAddStr(text) {
+    const idx = strings.indexOf(text);
+    if (idx !== -1) return idx;
+    strings.push(text);
+    return strings.length - 1;
+  }
+
+  /* 3. Patch each sheet XML */
+  for (const { name:sname, rId } of sheetEntries) {
+    const fills = sheetFillsMap[sname];
+    if (!fills || Object.keys(fills).length === 0) continue;
+
+    const relTarget = relMap[rId];
+    if (!relTarget) continue;
+    const filePath = relTarget.startsWith('worksheets/')
+      ? 'xl/' + relTarget
+      : 'xl/worksheets/' + relTarget.split('/').pop();
+
+    let xml = await zip.file(filePath).async('string');
+
+    for (const [rowIdxStr, noteText] of Object.entries(fills)) {
+      const rowNum  = parseInt(rowIdxStr) + 1;   // 0-based → 1-based
+      const strIdx  = getOrAddStr(noteText);
+      const cellRef = 'H' + rowNum;
+
+      /* New cell: type=s (shared string), style=2 (matches original H data cells) */
+      /* alignment: right + RTL + wrap via style index 2 which already exists in file */
+      const newCell = '<c r="' + cellRef + '" s="2" t="s"><v>' + strIdx + '</v></c>';
+
+      /* Try to replace existing H cell in this row */
+      const existRx = new RegExp('<c r="' + cellRef + '"[^>]*(?:\\/>|>[\\s\\S]*?<\\/c>)');
+      if (existRx.test(xml)) {
+        xml = xml.replace(existRx, newCell);
+      } else {
+        /* Insert before </row> of the matching row number */
+        const rowCloseRx = new RegExp(
+          '(<row\\b[^>]+\\br="' + rowNum + '"[^>]*>)([\\s\\S]*?)(<\\/row>)'
+        );
+        xml = xml.replace(rowCloseRx, (_, open, inner, close) => open + inner + newCell + close);
       }
     }
 
-    // FIX #1: write directly into original ws — preserves merges & styles
-    writeObsToSheet(ws, json, filledRows);
-    XLSX.utils.book_append_sheet(outWB, ws, sname);
-
-    if (rows.length) {
-      // FIX #4: tab label = "subject — group" so duplicates are distinguishable
-      const label = subject && group ? `${subject} — ${group}` : (subject || sname);
-      sheetsData.push({ name: sname, label, rows, subject, group, skipped: sheetSkipped.length });
+    /* Widen column H to 44 to fit Arabic obs text */
+    if (/<col\b[^>]+min="8"/.test(xml)) {
+      xml = xml.replace(
+        /(<col\b[^>]+min="8"[^>]+max="8"[^>]+)width="[^"]*"/,
+        '$1width="44"'
+      );
+    } else {
+      xml = xml.replace(
+        '</cols>',
+        '<col min="8" max="8" width="44" bestFit="1" customWidth="1"/></cols>'
+      );
+      if (!xml.includes('</cols>')) {
+        /* No cols element — add one before <sheetData> */
+        xml = xml.replace(
+          '<sheetData>',
+          '<cols><col min="8" max="8" width="44" bestFit="1" customWidth="1"/></cols><sheetData>'
+        );
+      }
     }
-  });
 
-  // ── Results summary ──
-  document.getElementById('okMsg').innerHTML =
-    `✅ تمت معالجة <strong>${total}</strong> تلميذ في <strong>${sheetsData.length}</strong> ورقة بنجاح`;
-
-  // FIX #3: show warning if any students were skipped
-  const wb3 = document.getElementById('warnBox');
-  if (skippedStudents.length) {
-    wb3.innerHTML = `<div class="al al-warn">
-      <span>⚠️</span>
-      <div><strong>${skippedStudents.length} تلميذ</strong> تم تخطيهم بسبب نقطة فارغة في العمود المختار:
-        <ul style="margin-top:5px;padding-right:14px;font-size:11.5px">
-          ${skippedStudents.map(s => `<li>${s.name} — ${s.sheet}</li>`).join('')}
-        </ul>
-      </div>
-    </div>`;
-  } else {
-    wb3.innerHTML = '';
+    zip.file(filePath, xml);
   }
 
-  document.getElementById('stBox').innerHTML = `
-    <div class="stat"><div class="stn">${total}</div><div class="stl">إجمالي</div></div>
-    <div class="stat"><div class="stn">${total ? (sum/total).toFixed(1) : '—'}</div><div class="stl">المعدل</div></div>
-    <div class="stat"><div class="stn" style="color:var(--green2)">${pass}</div><div class="stl">ناجح</div></div>
-    <div class="stat"><div class="stn" style="color:var(--red)">${fail}</div><div class="stl">راسب</div></div>
-  `;
+  /* 4. Rebuild sharedStrings.xml with new entries appended */
+  const newEntries = strings.slice(origSiCount)
+    .map(s => '<si><t xml:space="preserve">' + escXml(s) + '</t></si>')
+    .join('');
+  const total = strings.length;
+  let newSsXml = ssXml
+    .replace(/(<sst\b[^>]+)\bcount="[^"]*"/, '$1count="' + total + '"')
+    .replace(/(<sst\b[^>]+)\buniqueCount="[^"]*"/, '$1uniqueCount="' + total + '"')
+    .replace(/<\/sst>/, newEntries + '</sst>');
 
-  document.getElementById('sheetsGrid').innerHTML = sheetsData.map(sd => `
-    <div class="sheet-box done-sheet">
-      <div class="sbn">✅ ${sd.subject}</div>
-      <div class="sbi">${sd.group} — ${sd.rows.length} تلميذ${sd.skipped ? ` · ⚠️ ${sd.skipped} متخطى` : ''}</div>
-    </div>`).join('');
+  zip.file('xl/sharedStrings.xml', newSsXml);
 
-  // FIX #4: tabs show "subject — group" not just subject
-  document.getElementById('tabsBar').innerHTML = sheetsData.map((sd, i) =>
-    `<div class="tab${i === 0 ? ' active-tab' : ''}" onclick="showTab(${i})">${sd.label}</div>`
-  ).join('');
+  /* 5. Make sure sharedStrings is referenced in [Content_Types].xml */
+  let ct = await zip.file('[Content_Types].xml').async('string');
+  if (!ct.includes('sharedStrings')) {
+    ct = ct.replace('</Types>',
+      '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/></Types>');
+    zip.file('[Content_Types].xml', ct);
+    /* Also add to workbook rels */
+    let wbRelsNew = wbRels.replace('</Relationships>',
+      '<Relationship Id="rIdSS" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/></Relationships>');
+    zip.file('xl/_rels/workbook.xml.rels', wbRelsNew);
+  }
 
-  if (sheetsData.length) showTab(0);
-  goS(3);
-  showToast(`🎉 تمت إضافة الملاحظات لـ ${total} تلميذ!`);
+  return await zip.generateAsync({
+    type:'blob',
+    mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    compression:'DEFLATE'
+  });
 }
 
-// ══ Preview tab ══
+/* ── RUN ── */
+async function run() {
+  sheetsData=[]; skippedStudents=[]; outputBlob=null;
+  const btn = document.getElementById('runBtn');
+  btn.disabled=true; btn.textContent='⏳ جاري المعالجة...';
+  try {
+    const parsed = parseSheets();
+    const sheetFillsMap = {};
+    let total=0, pass=0, fail=0, sum=0;
+    for (const [sname, data] of Object.entries(parsed)) {
+      sheetFillsMap[sname] = data.fills;
+      skippedStudents.push(...data.skipped);
+      data.rows.forEach(r => { total++; sum+=r.score; if(r.score>=10) pass++; else fail++; });
+      if (data.rows.length) {
+        const label = data.subject && data.group ? data.subject+' — '+data.group : (data.subject||sname);
+        sheetsData.push({ ...data, label, name:sname });
+      }
+    }
+    outputBlob = await patchXlsxZip(sheetFillsMap);
+
+    document.getElementById('okMsg').innerHTML =
+      'تمت معالجة <strong>'+total+'</strong> تلميذ في <strong>'+sheetsData.length+'</strong> ورقة بنجاح';
+
+    const wb3 = document.getElementById('warnBox');
+    wb3.innerHTML = skippedStudents.length
+      ? '<div class="al al-warn"><span>⚠️</span><div><strong>'+skippedStudents.length+' تلميذ</strong> تم تخطيهم لأن النقطة المختارة فارغة:<ul style="margin-top:5px;padding-right:14px;font-size:11.5px">'+skippedStudents.map(s=>'<li>'+s.name+' — '+s.sheet+'</li>').join('')+'</ul></div></div>'
+      : '';
+
+    document.getElementById('stBox').innerHTML =
+      '<div class="stat"><div class="stn">'+total+'</div><div class="stl">إجمالي</div></div>'+
+      '<div class="stat"><div class="stn">'+(total?(sum/total).toFixed(1):'—')+'</div><div class="stl">المعدل</div></div>'+
+      '<div class="stat"><div class="stn" style="color:var(--green2)">'+pass+'</div><div class="stl">ناجح</div></div>'+
+      '<div class="stat"><div class="stn" style="color:var(--red)">'+fail+'</div><div class="stl">راسب</div></div>';
+
+    document.getElementById('sheetsGrid').innerHTML = sheetsData.map(sd =>
+      '<div class="sheet-box done-sheet"><div class="sbn">✅ '+sd.subject+'</div>'+
+      '<div class="sbi">'+sd.group+' — '+sd.rows.length+' تلميذ'+(sd.skipped.length?' · ⚠️ '+sd.skipped.length+' متخطى':'')+' </div></div>'
+    ).join('');
+
+    document.getElementById('tabsBar').innerHTML = sheetsData.map((sd,i) =>
+      '<div class="tab'+(i===0?' active-tab':'')+'" onclick="showTab('+i+')">'+sd.label+'</div>'
+    ).join('');
+
+    if (sheetsData.length) showTab(0);
+    goS(3);
+    showToast('🎉 تمت إضافة الملاحظات لـ '+total+' تلميذ!');
+  } catch(err) {
+    console.error(err);
+    showToast('❌ خطأ: ' + err.message);
+  } finally {
+    btn.disabled=false; btn.textContent='⚡ تطبيق على جميع الأفواج';
+  }
+}
+
+/* ── PREVIEW ── */
 function showTab(idx) {
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active-tab', i === idx));
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active-tab', i===idx));
   const sd = sheetsData[idx];
-  document.getElementById('pvHead').innerHTML =
-    `<tr><th>#</th><th>الاسم واللقب</th><th>النقطة</th><th>الملاحظة</th></tr>`;
-  document.getElementById('pvBody').innerHTML = sd.rows.slice(0, 40).map((r, i) => `
-    <tr>
-      <td style="color:var(--muted);font-weight:800">${i + 1}</td>
-      <td class="lname">${r.nom}</td>
-      <td><strong>${r.score}</strong></td>
-      <td><span class="nb2" style="background:${r.note.bg};color:${r.note.cl}">${r.note.t}</span></td>
-    </tr>`).join('');
+  document.getElementById('pvHead').innerHTML='<tr><th>#</th><th>الاسم واللقب</th><th>النقطة</th><th>الملاحظة</th></tr>';
+  document.getElementById('pvBody').innerHTML = sd.rows.slice(0,40).map((r,i) =>
+    '<tr><td style="color:var(--muted);font-weight:800">'+(i+1)+'</td>'+
+    '<td class="lname">'+r.nom+'</td>'+
+    '<td><strong>'+r.score+'</strong></td>'+
+    '<td><span class="nb2" style="background:'+r.note.bg+';color:'+r.note.cl+'">'+r.note.t+'</span></td></tr>'
+  ).join('');
 }
 
-// ══ Download ══
+/* ── DOWNLOAD ── */
 function dl() {
-  if (!outWB) return;
-  // cellStyles:true is required so the .s style objects are written into the file
-  XLSX.writeFile(outWB, 'رقمنة_مكتملة_بالملاحظات.xlsx', { cellStyles: true });
+  if (!outputBlob) return;
+  const url = URL.createObjectURL(outputBlob);
+  const a   = Object.assign(document.createElement('a'), { href:url, download:'رقمنة_مكتملة_بالملاحظات.xlsx' });
+  a.click();
+  URL.revokeObjectURL(url);
   showToast('📥 تم تحميل الملف!');
 }
 
-// ══ Reset ══
+/* ── RESET / NAV / TOAST ── */
 function resetAll() {
-  wb = null; outWB = null;
-  document.getElementById('fi').value = '';
-  document.getElementById('fn').style.display = 'none';
+  originalBytes=null; outputBlob=null;
+  document.getElementById('fi').value='';
+  document.getElementById('fn').style.display='none';
   goS(1);
 }
-
-// ══ Step navigation ══
 function goS(n) {
-  [1, 2, 3].forEach(i => {
-    document.getElementById('s' + i).classList.toggle('act', i === n);
-    const c = document.getElementById('sc' + i);
-    const l = document.getElementById('sl' + i);
-    if (i < n)      { c.className = 'sc done'; c.textContent = '✓'; }
-    else if (i === n) { c.className = 'sc act';  c.textContent = i; }
-    else            { c.className = 'sc';       c.textContent = i; }
-    l.className = i <= n ? 'sl act' : 'sl';
+  [1,2,3].forEach(i => {
+    document.getElementById('s'+i).classList.toggle('act', i===n);
+    const c=document.getElementById('sc'+i), l=document.getElementById('sl'+i);
+    if      (i< n){ c.className='sc done'; c.textContent='✓'; }
+    else if (i===n){ c.className='sc act';  c.textContent=i; }
+    else           { c.className='sc';       c.textContent=i; }
+    l.className = i<=n ? 'sl act' : 'sl';
   });
-  [1, 2].forEach(i => {
-    const ln = document.getElementById('ln' + i);
-    if (ln) ln.className = i < n ? 'sline done' : 'sline';
+  [1,2].forEach(i => {
+    const ln=document.getElementById('ln'+i);
+    if(ln) ln.className = i<n ? 'sline done' : 'sline';
   });
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top:0, behavior:'smooth' });
 }
-
-// ══ Toast ══
 function showToast(m) {
-  const t = document.getElementById('toast');
-  t.textContent = m; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3200);
+  const t=document.getElementById('toast');
+  t.textContent=m; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3200);
 }
 </script>
 </body>
