@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="بحث مدرسي في مادة الإعلام الآلي حول مكونات صفحة الويب باستخدام HTML">
+<title>مكونات صفحة الويب باستخدام HTML</title>
+<style>
+/* ══════════════════════════════════════════
+   FONTS  (embedded subset – no CDN needed)
+══════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@700;900&family=Source+Code+Pro:wght@400;600&display=swap');
+
+/* ══════════════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════════════ */
+:root{
+  --navy:    #0a1628;
+  --navy2:   #1a237e;
+  --blue:    #1565c0;
+  --sky:     #1e88e5;
+  --gold:    #f9a825;
+  --teal:    #00897b;
+  --white:   #ffffff;
+  --bg:      #f0f4ff;
+  --card:    #ffffff;
+  --text:    #1a1a2e;
+  --muted:   #546e7a;
+  --code-bg: #0d1117;
+  --tag:     #ff7b72;
+  --attr:    #79c0ff;
+  --val:     #a5d6ff;
+  --cmt:     #8b949e;
+  --border:  #bbdefb;
+  --radius:  14px;
+}
+
+/* ══════════════════════════════════════════
+   RESET + BASE
+══════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Cairo',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+  line-height:1.8;
+}
+
+/* ══════════════════════════════════════════
+   PROGRESS BAR
+══════════════════════════════════════════ */
+#progress{
+  position:fixed;top:0;left:0;height:3px;width:0;
+  background:linear-gradient(90deg,var(--gold),var(--sky));
+  z-index:9999;transition:width .1s linear;
+}
+
+/* ══════════════════════════════════════════
+   HERO
+══════════════════════════════════════════ */
+.hero{
+  min-height:100svh;
+  background:linear-gradient(145deg,#060e1f 0%,#0d1b3e 45%,#0d3b6e 100%);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:60px 24px 80px;
+  position:relative;overflow:hidden;
+}
+/* animated grid */
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:40px 40px;
+  animation:gridMove 20s linear infinite;
+}
+@keyframes gridMove{to{background-position:40px 40px}}
+
+/* glows */
+.glow{
+  position:absolute;border-radius:50%;
+  filter:blur(80px);pointer-events:none;
+}
+.glow-1{width:500px;height:500px;background:rgba(33,150,243,.12);top:-150px;right:-150px;animation:breathe 7s ease-in-out infinite}
+.glow-2{width:350px;height:350px;background:rgba(249,168,37,.08);bottom:-100px;left:-100px;animation:breathe 9s ease-in-out infinite reverse}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+
+.hero-inner{position:relative;z-index:1;max-width:680px}
+
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(249,168,37,.12);
+  border:1px solid rgba(249,168,37,.35);
+  color:var(--gold);
+  padding:6px 18px;border-radius:30px;
+  font-size:13px;font-weight:700;
+  margin-bottom:28px;
+  animation:fadeUp .7s ease both;
+}
+.hero h1{
+  font-family:'Tajawal',sans-serif;
+  font-size:clamp(30px,7vw,54px);
+  font-weight:900;color:var(--white);
+  line-height:1.15;margin-bottom:10px;
+  animation:fadeUp .7s .1s ease both;
+}
+.hero h1 span{color:var(--gold)}
+.hero-sub{
+  font-size:clamp(15px,4vw,22px);
+  color:#90caf9;font-weight:700;
+  margin-bottom:28px;letter-spacing:.5px;
+  animation:fadeUp .7s .2s ease both;
+}
+.divider{
+  width:50px;height:3px;background:var(--gold);
+  border-radius:2px;margin:0 auto 24px;
+  animation:fadeUp .7s .3s ease both;
+}
+.hero-meta{
+  color:#78909c;font-size:14px;
+  animation:fadeUp .7s .4s ease both;
+}
+.scroll-arrow{
+  position:absolute;bottom:28px;left:50%;
+  transform:translateX(-50%);
+  color:rgba(255,255,255,.3);font-size:20px;
+  animation:bounce 2s infinite;
+}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(10px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══════════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════════ */
+.wrap{max-width:820px;margin:0 auto;padding:0 18px 80px}
+
+/* ══════════════════════════════════════════
+   TABLE OF CONTENTS
+══════════════════════════════════════════ */
+.toc{
+  background:var(--card);border-radius:var(--radius);
+  padding:22px 26px;margin:36px 0 8px;
+  box-shadow:0 2px 16px rgba(0,0,0,.07);
+  border:1px solid var(--border);
+}
+.toc-title{
+  font-size:16px;font-weight:700;color:var(--navy);
+  display:flex;align-items:center;gap:8px;margin-bottom:14px;
+}
+.toc ol{padding-right:18px}
+.toc ol li{margin-bottom:9px;font-size:14px}
+.toc ol li a{color:var(--blue);text-decoration:none;font-weight:600;transition:color .2s}
+.toc ol li a:hover{color:var(--gold)}
+
+/* ══════════════════════════════════════════
+   SECTION HEADER
+══════════════════════════════════════════ */
+.sec-head{
+  display:flex;align-items:center;gap:12px;
+  margin:52px 0 18px;padding:15px 20px;
+  background:linear-gradient(135deg,var(--navy),var(--navy2));
+  border-radius:var(--radius);
+  box-shadow:0 4px 20px rgba(10,22,40,.3);
+  position:relative;overflow:hidden;
+}
+.sec-head::before{
+  content:'';position:absolute;
+  right:0;top:0;bottom:0;width:4px;
+  background:var(--gold);
+}
+.sec-num{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--gold);color:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:15px;flex-shrink:0;
+}
+.sec-title{color:var(--white);font-size:17px;font-weight:700}
+
+/* ══════════════════════════════════════════
+   CARD
+══════════════════════════════════════════ */
+.card{
+  background:var(--card);border-radius:var(--radius);
+  padding:22px 24px;margin-bottom:16px;
+  box-shadow:0 2px 14px rgba(0,0,0,.06);
+  border:1px solid rgba(21,101,192,.08);
+}
+.card p{font-size:14.5px;color:var(--muted);line-height:1.85}
+
+/* sub heading inside card */
+.sub{
+  font-size:15px;font-weight:700;color:var(--blue);
+  margin:20px 0 10px;
+  padding-right:12px;
+  border-right:3px solid var(--gold);
+}
+
+/* ══════════════════════════════════════════
+   INFO BOX
+══════════════════════════════════════════ */
+.info{
+  background:linear-gradient(135deg,#e0f7fa,#e8f5e9);
+  border-right:4px solid var(--teal);
+  border-radius:var(--radius);
+  padding:14px 18px;margin:14px 0;
+  font-size:14px;color:var(--teal);font-weight:600;
+  display:flex;gap:10px;align-items:flex-start;line-height:1.75;
+}
+.info .em{font-size:18px;flex-shrink:0}
+
+/* ══════════════════════════════════════════
+   BULLET LIST
+══════════════════════════════════════════ */
+ul.blist{list-style:none;margin:10px 0}
+ul.blist li{
+  padding:8px 0;font-size:14.5px;color:var(--muted);
+  display:flex;align-items:flex-start;gap:10px;
+  border-bottom:1px solid #f0f4ff;line-height:1.7;
+}
+ul.blist li:last-child{border-bottom:none}
+ul.blist li::before{content:'◉';color:var(--sky);font-size:10px;margin-top:6px;flex-shrink:0}
+code.ic{
+  font-family:'Source Code Pro',monospace;
+  background:#f0f4ff;color:#c62828;
+  padding:1px 6px;border-radius:5px;font-size:12.5px;
+}
+
+/* ══════════════════════════════════════════
+   TABLE
+══════════════════════════════════════════ */
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius);margin:12px 0}
+table{
+  width:100%;border-collapse:collapse;
+  background:var(--white);font-size:13.5px;
+}
+thead th{
+  background:var(--navy);color:var(--white);
+  padding:11px 14px;font-weight:700;text-align:center;
+}
+tbody tr:nth-child(even){background:#f0f4ff}
+tbody tr:hover{background:#e3f2fd;transition:background .2s}
+td{padding:10px 14px;border-bottom:1px solid #e8edf5;vertical-align:middle;color:var(--muted)}
+td:first-child{
+  font-family:'Source Code Pro',monospace;
+  font-size:12.5px;color:#c62828;font-weight:700;
+  text-align:center;white-space:nowrap;background:#fff8f8;
+}
+
+/* ══════════════════════════════════════════
+   CODE BLOCK
+══════════════════════════════════════════ */
+.code-wrap{
+  background:var(--code-bg);border-radius:var(--radius);
+  overflow:hidden;margin:14px 0;
+  box-shadow:0 4px 24px rgba(0,0,0,.35);
+}
+.code-bar{
+  background:#161b22;padding:8px 16px;
+  display:flex;align-items:center;gap:6px;
+}
+.dot{width:10px;height:10px;border-radius:50%}
+.dr{background:#ff5f57}.dy{background:#ffbd2e}.dg{background:#28c941}
+.lang{margin-right:auto;color:#8b949e;font-size:11px;font-family:monospace;letter-spacing:1px}
+pre{
+  padding:18px 16px;overflow-x:auto;
+  font-family:'Source Code Pro',monospace;
+  font-size:13px;line-height:1.75;
+  direction:ltr;text-align:left;
+}
+.t{color:var(--tag)}       /* tag        */
+.a{color:var(--attr)}      /* attribute  */
+.v{color:var(--val)}       /* value      */
+.c{color:var(--cmt);font-style:italic} /* comment */
+.w{color:#e6edf3}          /* text       */
+
+/* ══════════════════════════════════════════
+   CARD TITLE
+══════════════════════════════════════════ */
+.ctitle{
+  font-size:15.5px;font-weight:700;color:var(--blue);
+  margin-bottom:10px;display:flex;align-items:center;gap:8px;
+}
+.icon{
+  width:28px;height:28px;border-radius:8px;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+
+/* ══════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════ */
+footer.page-footer{
+  background:var(--navy);color:#546e7a;
+  text-align:center;padding:32px 20px;font-size:13px;
+}
+footer.page-footer strong{color:var(--gold)}
+
+
+
+/* ══════════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════════ */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease}
+.reveal.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:480px){
+  .sec-title{font-size:14px}
+  pre{font-size:11.5px}
+  .hero h1{font-size:26px}
+}
+</style>
+</head>
+<body>
+
+<!-- progress bar -->
+<div id="progress"></div>
+
+<!-- ════════════ HERO ════════════ -->
+<section class="hero">
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+  <div class="hero-inner">
+    <div class="badge">📚 بحث مدرسي — مادة الإعلام الآلي</div>
+    <h1>مكونات صفحة الويب<br><span>باستخدام HTML</span></h1>
+    <div class="hero-sub">HyperText Markup Language</div>
+    <div class="divider"></div>
+    <div class="hero-meta">السنة الدراسية 2024 / 2025</div>
+  </div>
+  <div class="scroll-arrow">▼</div>
+</section>
+
+<!-- ════════════ CONTENT ════════════ -->
+<main class="wrap">
+
+  <!-- فهرس -->
+  <nav class="toc reveal">
+    <div class="toc-title">📋 فهرس المحتويات</div>
+    <ol>
+      <li><a href="#s1">مقدمة</a></li>
+      <li><a href="#s2">الهيكل الأساسي لصفحة HTML</a></li>
+      <li><a href="#s3">المكونات الرئيسية</a></li>
+      <li><a href="#s4">عناصر المحتوى داخل &lt;body&gt;</a></li>
+      <li><a href="#s5">العناصر الهيكلية في HTML5</a></li>
+      <li><a href="#s6">الخصائص (Attributes)</a></li>
+      <li><a href="#s7">مثال صفحة ويب متكاملة</a></li>
+      <li><a href="#s8">الخلاصة</a></li>
+      <li><a href="#s9">المراجع</a></li>
+    </ol>
+  </nav>
+
+  <!-- ══ 1 ══ -->
+  <div class="sec-head reveal" id="s1">
+    <div class="sec-num">١</div>
+    <div class="sec-title">مقدمة</div>
+  </div>
+  <div class="card reveal">
+    <p>لغة <strong>HTML</strong> (HyperText Markup Language) هي لغة التوصيف القياسية المستخدمة في إنشاء صفحات الويب. تُعدّ اللبنة الأساسية التي تقوم عليها شبكة الإنترنت، وهي وسيلة التواصل الأولى بين المتصفحات وخوادم الويب.</p>
+    <br>
+    <p>ظهرت HTML لأول مرة عام <strong>1991</strong> على يد العالم البريطاني <strong>تيم بيرنرز-لي</strong>، وتطورت عبر إصدارات متعددة حتى وصلنا إلى الإصدار الحالي <strong>HTML5</strong> الذي أضاف ميزات قوية تدعم الوسائط والرسوميات والعناصر الدلالية.</p>
+  </div>
+  <div class="info reveal">
+    <span class="em">💡</span>
+    <span>HTML وحدها لا تكفي — تُكمّلها <strong>CSS</strong> للتصميم و<strong>JavaScript</strong> للتفاعل، وتُشكّل معاً ثلاثية تطوير الواجهة الأمامية (Front-End).</span>
+  </div>
+
+  <!-- ══ 2 ══ -->
+  <div class="sec-head reveal" id="s2">
+    <div class="sec-num">٢</div>
+    <div class="sec-title">الهيكل الأساسي لصفحة HTML</div>
+  </div>
+  <div class="card reveal">
+    <p>تتكون كل صفحة ويب من هيكل أساسي موحّد يُعرف بـ "الهيكل العظمي" للصفحة:</p>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
+        <span class="lang">HTML</span>
+      </div>
+      <pre><span class="t">&lt;!DOCTYPE html&gt;</span>
+<span class="t">&lt;html</span> <span class="a">lang</span>=<span class="v">"ar"</span> <span class="a">dir</span>=<span class="v">"rtl"</span><span class="t">&gt;</span>
+  <span class="t">&lt;head&gt;</span>
+    <span class="t">&lt;meta</span> <span class="a">charset</span>=<span class="v">"UTF-8"</span><span class="t">&gt;</span>
+    <span class="t">&lt;title&gt;</span><span class="w">عنوان الصفحة</span><span class="t">&lt;/title&gt;</span>
+  <span class="t">&lt;/head&gt;</span>
+  <span class="t">&lt;body&gt;</span>
+    <span class="c">&lt;!-- المحتوى المرئي هنا --&gt;</span>
+  <span class="t">&lt;/body&gt;</span>
+<span class="t">&lt;/html&gt;</span></pre>
+    </div>
+  </div>
+
+  <!-- ══ 3 ══ -->
+  <div class="sec-head reveal" id="s3">
+    <div class="sec-num">٣</div>
+    <div class="sec-title">المكونات الرئيسية</div>
+  </div>
+
+  <div class="card reveal">
+    <div class="ctitle"><span class="icon">📌</span> إعلان نوع المستند &lt;!DOCTYPE html&gt;</div>
+    <p>يُخبر المتصفح بأن الصفحة مكتوبة بلغة HTML5. يجب أن يكون دائماً السطر الأول، وهو تعليمة للمتصفح وليس وسماً.</p>
+  </div>
+
+  <div class="card reveal">
+    <div class="ctitle"><span class="icon">🌐</span> العنصر الجذري &lt;html&gt;</div>
+    <p>يحتوي على جميع عناصر الصفحة. يُحدّد اللغة (<code class="ic">lang</code>) واتجاه الكتابة (<code class="ic">dir</code>).</p>
+  </div>
+
+  <div class="card reveal">
+    <div class="ctitle"><span class="icon">🧠</span> رأس الصفحة &lt;head&gt;</div>
+    <p>يحتوي على المعلومات الوصفية التي لا تظهر للمستخدم مباشرةً:</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>العنصر</th><th>الوظيفة</th></tr></thead>
+        <tbody>
+          <tr><td>&lt;title&gt;</td><td>عنوان الصفحة في شريط المتصفح</td></tr>
+          <tr><td>&lt;meta charset&gt;</td><td>ترميز الأحرف المستخدم (UTF-8)</td></tr>
+          <tr><td>&lt;meta name&gt;</td><td>الوصف والكلمات المفتاحية لمحركات البحث</td></tr>
+          <tr><td>&lt;link&gt;</td><td>ربط ملفات CSS الخارجية</td></tr>
+          <tr><td>&lt;style&gt;</td><td>إضافة أنماط CSS داخل الصفحة</td></tr>
+          <tr><td>&lt;script&gt;</td><td>إضافة أو ربط ملفات JavaScript</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card reveal">
+    <div class="ctitle"><span class="icon">👁️</span> جسم الصفحة &lt;body&gt;</div>
+    <p>يحتوي على كل المحتوى المرئي للمستخدم من نصوص وصور وجداول وروابط.</p>
+  </div>
+
+  <!-- ══ 4 ══ -->
+  <div class="sec-head reveal" id="s4">
+    <div class="sec-num">٤</div>
+    <div class="sec-title">عناصر المحتوى داخل &lt;body&gt;</div>
+  </div>
+  <div class="card reveal">
+
+    <div class="sub">أ. العناوين (Headings)</div>
+    <p>توفر HTML ستة مستويات من العناوين من h1 (الأكبر) إلى h6 (الأصغر):</p>
+    <div class="code-wrap">
+      <div class="code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span class="lang">HTML</span></div>
+      <pre><span class="t">&lt;h1&gt;</span><span class="w">العنوان الرئيسي — الأكبر</span><span class="t">&lt;/h1&gt;</span>
+<span class="t">&lt;h2&gt;</span><span class="w">العنوان الثاني</span><span class="t">&lt;/h2&gt;</span>
+<span class="t">&lt;h3&gt;</span><span class="w">العنوان الثالث</span><span class="t">&lt;/h3&gt;</span>
+<span class="c">&lt;!-- وهكذا حتى &lt;h6&gt; --&gt;</span></pre>
+    </div>
+
+    <div class="sub">ب. عناصر النص</div>
+    <ul class="blist">
+      <li><code class="ic">&lt;p&gt;</code> &nbsp;— لإنشاء فقرات نصية مستقلة</li>
+      <li><code class="ic">&lt;strong&gt;</code> &nbsp;— نص عريض Bold مع دلالة أهمية</li>
+      <li><code class="ic">&lt;em&gt;</code> &nbsp;— نص مائل Italic مع دلالة تأكيد</li>
+      <li><code class="ic">&lt;span&gt;</code> &nbsp;— تنسيق أجزاء صغيرة من النص</li>
+      <li><code class="ic">&lt;br&gt;</code> &nbsp;— سطر جديد داخل الفقرة</li>
+      <li><code class="ic">&lt;hr&gt;</code> &nbsp;— خط أفقي فاصل</li>
+    </ul>
+
+    <div class="sub">ج. الروابط &lt;a&gt;</div>
+    <p>الروابط تُربط صفحات الويب ببعضها وهي جوهر الإنترنت:</p>
+    <div class="code-wrap">
+      <div class="code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span class="lang">HTML</span></div>
+      <pre><span class="t">&lt;a</span> <span class="a">href</span>=<span class="v">"https://www.example.com"</span> <span class="a">target</span>=<span class="v">"_blank"</span><span class="t">&gt;</span>
+  <span class="w">اضغط هنا لزيارة الموقع</span>
+<span class="t">&lt;/a&gt;</span></pre>
+    </div>
+
+    <div class="sub">د. الصور &lt;img&gt;</div>
+    <div class="code-wrap">
+      <div class="code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span class="lang">HTML</span></div>
+      <pre><span class="t">&lt;img</span> <span class="a">src</span>=<span class="v">"صورة.jpg"</span> <span class="a">alt</span>=<span class="v">"وصف الصورة"</span>
+     <span class="a">width</span>=<span class="v">"300"</span> <span class="a">height</span>=<span class="v">"200"</span><span class="t">&gt;</span></pre>
+    </div>
+    <ul class="blist">
+      <li><code class="ic">src</code> — مسار ملف الصورة</li>
+      <li><code class="ic">alt</code> — النص البديل عند تعذّر التحميل</li>
+      <li><code class="ic">width / height</code> — أبعاد الصورة بالبيكسل</li>
+    </ul>
+
+    <div class="sub">هـ. القوائم</div>
+    <div class="code-wrap">
+      <div class="code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span class="lang">HTML</span></div>
+      <pre><span class="c">&lt;!-- قائمة غير مرتبة --&gt;</span>
+<span class="t">&lt;ul&gt;</span>
+  <span class="t">&lt;li&gt;</span><span class="w">العنصر الأول</span><span class="t">&lt;/li&gt;</span>
+  <span class="t">&lt;li&gt;</span><span class="w">العنصر الثاني</span><span class="t">&lt;/li&gt;</span>
+<span class="t">&lt;/ul&gt;</span>
+
+<span class="c">&lt;!-- قائمة مرتبة بأرقام --&gt;</span>
+<span class="t">&lt;ol&gt;</span>
+  <span class="t">&lt;li&gt;</span><span class="w">الخطوة الأولى</span><span class="t">&lt;/li&gt;</span>
+  <span class="t">&lt;li&gt;</span><span class="w">الخطوة الثانية</span><span class="t">&lt;/li&gt;</span>
+<span class="t">&lt;/ol&gt;</span></pre>
+    </div>
+
+    <div class="sub">و. الجداول &lt;table&gt;</div>
+    <div class="code-wrap">
+      <div class="code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span class="lang">HTML</span></div>
+      <pre><span class="t">&lt;table&gt;</span>
+  <span class="t">&lt;thead&gt;</span>
+    <span class="t">&lt;tr&gt;</span>
+      <span class="t">&lt;th&gt;</span><span class="w">العمود 1</span><span class="t">&lt;/th&gt;</span>
+      <span class="t">&lt;th&gt;</span><span class="w">العمود 2</span><span class="t">&lt;/th&gt;</span>
+    <span class="t">&lt;/tr&gt;</span>
+  <span class="t">&lt;/thead&gt;</span>
+  <span class="t">&lt;tbody&gt;</span>
+    <span class="t">&lt;tr&gt;</span>
+      <span class="t">&lt;td&gt;</span><span class="w">بيانات</span><span class="t">&lt;/td&gt;</span>
+      <span class="t">&lt;td&gt;</span><span class="w">بيانات</span><span class="t">&lt;/td&gt;</span>
+    <span class="t">&lt;/tr&gt;</span>
+  <span class="t">&lt;/tbody&gt;</span>
+<span class="t">&lt;/table&gt;</span></pre>
+    </div>
+
+    <div class="sub">ز. النماذج &lt;form&gt;</div>
+    <div class="code-wrap">
+      <div class="code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span class="lang">HTML</span></div>
+      <pre><span class="t">&lt;form</span> <span class="a">action</span>=<span class="v">"/submit"</span> <span class="a">method</span>=<span class="v">"post"</span><span class="t">&gt;</span>
+  <span class="t">&lt;label</span> <span class="a">for</span>=<span class="v">"name"</span><span class="t">&gt;</span><span class="w">الاسم:</span><span class="t">&lt;/label&gt;</span>
+  <span class="t">&lt;input</span> <span class="a">type</span>=<span class="v">"text"</span> <span class="a">id</span>=<span class="v">"name"</span><span class="t">&gt;</span>
+  <span class="t">&lt;input</span> <span class="a">type</span>=<span class="v">"email"</span> <span class="a">placeholder</span>=<span class="v">"البريد الإلكتروني"</span><span class="t">&gt;</span>
+  <span class="t">&lt;input</span> <span class="a">type</span>=<span class="v">"submit"</span> <span class="a">value</span>=<span class="v">"إرسال"</span><span class="t">&gt;</span>
+<span class="t">&lt;/form&gt;</span></pre>
+    </div>
+  </div>
+
+  <!-- ══ 5 ══ -->
+  <div class="sec-head reveal" id="s5">
+    <div class="sec-num">٥</div>
+    <div class="sec-title">العناصر الهيكلية في HTML5</div>
+  </div>
+  <div class="card reveal">
+    <p>أضاف HTML5 عناصر دلالية (Semantic Elements) تُنظّم هيكل الصفحة وتُحسّن وصول محركات البحث وقارئات الشاشة:</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>العنصر</th><th>الوظيفة والموقع في الصفحة</th></tr></thead>
+        <tbody>
+          <tr><td>&lt;header&gt;</td><td>رأس الصفحة — الشعار والقائمة الرئيسية</td></tr>
+          <tr><td>&lt;nav&gt;</td><td>قسم التنقل والروابط الرئيسية</td></tr>
+          <tr><td>&lt;main&gt;</td><td>المحتوى الرئيسي — يكون واحداً فقط</td></tr>
+          <tr><td>&lt;article&gt;</td><td>محتوى مستقل كمقال أو خبر</td></tr>
+          <tr><td>&lt;section&gt;</td><td>قسم موضوعي له عنوان خاص</td></tr>
+          <tr><td>&lt;aside&gt;</td><td>محتوى جانبي مكمّل كالملاحظات</td></tr>
+          <tr><td>&lt;footer&gt;</td><td>تذييل الصفحة — حقوق النشر والتواصل</td></tr>
+          <tr><td>&lt;div&gt;</td><td>حاوية عامة غير دلالية للتنسيق</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ 6 ══ -->
+  <div class="sec-head reveal" id="s6">
+    <div class="sec-num">٦</div>
+    <div class="sec-title">الخصائص (Attributes)</div>
+  </div>
+  <div class="card reveal">
+    <p>الخصائص معلومات إضافية تُضاف داخل الوسم الافتتاحي لتحديد سلوكه أو شكله:</p>
+    <div class="code-wrap">
+      <div class="code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span class="lang">HTML</span></div>
+      <pre><span class="t">&lt;وسم</span> <span class="a">خاصية1</span>=<span class="v">"قيمة1"</span> <span class="a">خاصية2</span>=<span class="v">"قيمة2"</span><span class="t">&gt;</span> <span class="w">المحتوى</span> <span class="t">&lt;/وسم&gt;</span></pre>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>الخاصية</th><th>الوظيفة</th></tr></thead>
+        <tbody>
+          <tr><td>id</td><td>معرّف فريد لكل عنصر في الصفحة</td></tr>
+          <tr><td>class</td><td>فئة لتطبيق أنماط CSS على مجموعة عناصر</td></tr>
+          <tr><td>style</td><td>تنسيق مباشر (Inline CSS)</td></tr>
+          <tr><td>title</td><td>نص يظهر عند تمرير الفأرة</td></tr>
+          <tr><td>dir</td><td>اتجاه النص: rtl أو ltr</td></tr>
+          <tr><td>hidden</td><td>إخفاء العنصر عن الشاشة</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ 7 ══ -->
+  <div class="sec-head reveal" id="s7">
+    <div class="sec-num">٧</div>
+    <div class="sec-title">مثال صفحة ويب متكاملة</div>
+  </div>
+  <div class="card reveal">
+    <p>مثال كامل يجمع أبرز العناصر التي تعلمناها:</p>
+    <div class="code-wrap">
+      <div class="code-bar"><div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div><span class="lang">HTML — مثال كامل</span></div>
+      <pre><span class="t">&lt;!DOCTYPE html&gt;</span>
+<span class="t">&lt;html</span> <span class="a">lang</span>=<span class="v">"ar"</span> <span class="a">dir</span>=<span class="v">"rtl"</span><span class="t">&gt;</span>
+<span class="t">&lt;head&gt;</span>
+  <span class="t">&lt;meta</span> <span class="a">charset</span>=<span class="v">"UTF-8"</span><span class="t">&gt;</span>
+  <span class="t">&lt;title&gt;</span><span class="w">مدرستي الجميلة</span><span class="t">&lt;/title&gt;</span>
+<span class="t">&lt;/head&gt;</span>
+<span class="t">&lt;body&gt;</span>
+  <span class="t">&lt;header&gt;</span>
+    <span class="t">&lt;h1&gt;</span><span class="w">موقع مدرستي</span><span class="t">&lt;/h1&gt;</span>
+    <span class="t">&lt;nav&gt;</span>
+      <span class="t">&lt;a</span> <span class="a">href</span>=<span class="v">"#"</span><span class="t">&gt;</span><span class="w">الرئيسية</span><span class="t">&lt;/a&gt;</span>
+      <span class="t">&lt;a</span> <span class="a">href</span>=<span class="v">"#"</span><span class="t">&gt;</span><span class="w">تواصل معنا</span><span class="t">&lt;/a&gt;</span>
+    <span class="t">&lt;/nav&gt;</span>
+  <span class="t">&lt;/header&gt;</span>
+  <span class="t">&lt;main&gt;</span>
+    <span class="t">&lt;section&gt;</span>
+      <span class="t">&lt;h2&gt;</span><span class="w">عن المدرسة</span><span class="t">&lt;/h2&gt;</span>
+      <span class="t">&lt;p&gt;</span><span class="w">مدرسة متميزة تضم أفضل الطلاب.</span><span class="t">&lt;/p&gt;</span>
+      <span class="t">&lt;img</span> <span class="a">src</span>=<span class="v">"school.jpg"</span> <span class="a">alt</span>=<span class="v">"صورة المدرسة"</span><span class="t">&gt;</span>
+    <span class="t">&lt;/section&gt;</span>
+  <span class="t">&lt;/main&gt;</span>
+  <span class="t">&lt;footer&gt;</span>
+    <span class="t">&lt;p&gt;</span><span class="w">جميع الحقوق محفوظة 2025</span><span class="t">&lt;/p&gt;</span>
+  <span class="t">&lt;/footer&gt;</span>
+<span class="t">&lt;/body&gt;</span>
+<span class="t">&lt;/html&gt;</span></pre>
+    </div>
+  </div>
+
+  <!-- ══ 8 ══ -->
+  <div class="sec-head reveal" id="s8">
+    <div class="sec-num">٨</div>
+    <div class="sec-title">الخلاصة</div>
+  </div>
+  <div class="card reveal">
+    <ul class="blist">
+      <li>كل صفحة HTML تبدأ بـ <code class="ic">&lt;!DOCTYPE html&gt;</code> وتحتوي على العنصر الجذري <code class="ic">&lt;html&gt;</code></li>
+      <li>يُقسم الهيكل إلى <code class="ic">&lt;head&gt;</code> للمعلومات الوصفية و<code class="ic">&lt;body&gt;</code> للمحتوى المرئي</li>
+      <li>عناصر HTML متداخلة (Nested) ولكل منها دور دلالي محدد</li>
+      <li>HTML5 أضاف عناصر دلالية تُحسّن تجربة المستخدم ومحركات البحث</li>
+      <li>الخصائص تُغني العناصر بمعلومات تتحكم في سلوكها وشكلها</li>
+    </ul>
+  </div>
+  <div class="info reveal">
+    <span class="em">🚀</span>
+    <span>الخطوة التالية: تعلّم <strong>CSS</strong> لإضافة الألوان والتصميم، ثم <strong>JavaScript</strong> لإضافة الحركة والتفاعل!</span>
+  </div>
+
+  <!-- ══ 9 ══ -->
+  <div class="sec-head reveal" id="s9">
+    <div class="sec-num">📚</div>
+    <div class="sec-title">المراجع</div>
+  </div>
+  <div class="card reveal">
+    <ul class="blist">
+      <li>MDN Web Docs — Mozilla Developer Network: <strong>developer.mozilla.org</strong></li>
+      <li>W3Schools HTML Tutorial: <strong>www.w3schools.com/html</strong></li>
+      <li>W3C — World Wide Web Consortium: <strong>www.w3.org</strong></li>
+      <li>HTML5 Living Standard — WHATWG: <strong>html.spec.whatwg.org</strong></li>
+    </ul>
+  </div>
+
+</main>
+
+<footer class="page-footer">
+  <p>بحث مدرسي &nbsp;|&nbsp; مادة الإعلام الآلي &nbsp;|&nbsp; <strong>2024 / 2025</strong></p>
+</footer>
+
+<script>
+"use strict";
+
+/* ── Progress bar ── */
+window.addEventListener('scroll',()=>{
+  const p=window.scrollY/(document.documentElement.scrollHeight-window.innerHeight)*100;
+  document.getElementById('progress').style.width=p+'%';
+});
+
+/* ── Scroll reveal ── */
+const ro=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('show');ro.unobserve(e.target);}});
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+</script>
+</body>
+</html>
